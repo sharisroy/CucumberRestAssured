@@ -6,50 +6,47 @@ import io.cucumber.java.Scenario;
 import io.restassured.response.Response;
 import utils.ApiClient;
 import utils.ConfigManager;
-import stepDefinitions.LoginSteps;
-
-import static io.restassured.RestAssured.given;
+import utils.ScenarioContext;
 
 public class Hooks {
 
+    private static final ThreadLocal<ScenarioContext> scenarioContextThreadLocal = new ThreadLocal<>();
+
     @Before
     public void setup(Scenario scenario) {
-        System.out.println("🔧 Setting up before scenario: " + scenario.getName());
+        System.out.println("🔧 Starting scenario: " + scenario.getName());
+        scenarioContextThreadLocal.set(new ScenarioContext());
 
         // ✅ Skip login for scenarios tagged with @login
         if (scenario.getSourceTagNames().contains("@login")) {
-            System.out.println("⏭ Skipping auto-login for scenario tagged with @login");
+            System.out.println("⏭ Skipping auto-login for scenario tagged @login");
             return;
         }
 
-        // ✅ Only login if token is not already set
-        if (LoginSteps.authToken == null) {
-            ApiClient apiClient = new ApiClient();
-            String loginEmail = ConfigManager.get("login.email");
-            String loginPassword = ConfigManager.get("login.password");
+        // ✅ Login once and store token for other APIs
+        ApiClient apiClient = new ApiClient();
+        Response loginResponse = apiClient
+                .setBaseUri(ConfigManager.get("base.url"))
+                .setBody("{ \"userEmail\": \"" + ConfigManager.get("login.email") + "\", " +
+                        "\"userPassword\": \"" + ConfigManager.get("login.password") + "\" }")
+                .post("auth/login");
 
-            // ✅ Log full request & response for debugging
-            Response loginResponse = given()
-                    .log().all()   // 🔍 log request details
-                    .baseUri(ConfigManager.get("base.url"))
-                    .header("Content-Type", "application/json")
-                    .body("{ \"userEmail\": \"" + loginEmail + "\", \"userPassword\": \"" + loginPassword + "\" }")
-                    .when()
-                    .post("auth/login")
-                    .then()
-                    .log().all()   // 🔍 log response details
-                    .statusCode(200)
-                    .extract()
-                    .response();
+        loginResponse.then().statusCode(200);
 
-            // ✅ Store the token globally for later steps
-            LoginSteps.authToken = loginResponse.jsonPath().getString("token");
-            System.out.println("✅ Token set in Hooks: " + LoginSteps.authToken);
-        }
+        // ✅ store token for use in GetProductSteps
+        String token = loginResponse.jsonPath().getString("token");
+        getScenarioContext().set("authToken", token);
+
+        System.out.println("✅ Token stored in ScenarioContext: " + token);
     }
 
     @After
     public void teardown() {
         System.out.println("🧹 Cleaning up after scenario...");
+        scenarioContextThreadLocal.remove();
+    }
+
+    public static ScenarioContext getScenarioContext() {
+        return scenarioContextThreadLocal.get();
     }
 }

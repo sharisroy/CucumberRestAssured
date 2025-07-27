@@ -1,5 +1,6 @@
-package stepDefinitions;  // ✅ Must match folder name exactly
+package stepDefinitions;
 
+import hooks.Hooks;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.restassured.response.Response;
@@ -16,11 +17,21 @@ public class GetProductSteps {
 
     @When("I send a POST request to {string}")
     public void i_send_a_post_request_to(String endpoint) {
+        // ✅ Retrieve token from ScenarioContext
+        String token = Hooks.getScenarioContext().get("authToken", String.class);
+
+        if (token == null || token.isEmpty()) {
+            throw new RuntimeException("❌ No authToken found in ScenarioContext. Make sure login ran successfully.");
+        }
+
+        // ✅ Make request with token
         response = apiClient
                 .setBaseUri(ConfigManager.get("base.url"))
-                .addHeader("Authorization", LoginSteps.authToken) // ✅ use token from Hooks
-                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", token)
                 .post(endpoint);
+
+        // ✅ Store response in ScenarioContext for other steps if needed later
+        Hooks.getScenarioContext().set("getProductResponse", response);
     }
 
     @Then("the product API should return a {int} status code")
@@ -33,6 +44,11 @@ public class GetProductSteps {
     public void the_response_should_contain_a_product_list() {
         response.then().body("count", greaterThan(0));
         response.then().body("data[0]._id", notNullValue());
-        System.out.println("✅ Total Products: " + response.jsonPath().getInt("count"));
+
+        int productCount = response.jsonPath().getInt("count");
+        System.out.println("✅ Total Products: " + productCount);
+
+        // ✅ Optional: Store product count for next steps
+        Hooks.getScenarioContext().set("productCount", productCount);
     }
 }

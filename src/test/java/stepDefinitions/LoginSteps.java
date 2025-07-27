@@ -1,13 +1,14 @@
 package stepDefinitions;
 
-import utils.ApiClient;
-import utils.ConfigManager;
-import utils.JsonUtils;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.restassured.response.Response;
 import org.json.JSONObject;
+import utils.ApiClient;
+import utils.ConfigManager;
+import utils.JsonUtils;
+import hooks.Hooks;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.equalTo;
@@ -16,12 +17,9 @@ public class LoginSteps {
 
     private Response response;
     private String jsonBody;
-    private ApiClient apiClient = new ApiClient();
+    private final ApiClient apiClient = new ApiClient();
 
-    // ✅ Store token for future API calls
-    public static String authToken;
-
-    @Given("I have a JSON payload from {string}")  // ✅ fixed the extra space
+    @Given("I have a JSON payload from {string}")
     public void i_have_a_json_payload_from(String fileName) {
         String filePath = "src/test/resources/testdata/" + fileName;
         jsonBody = JsonUtils.readJsonFromFile(filePath);
@@ -38,28 +36,37 @@ public class LoginSteps {
 
     @When("I send a POST request to endpoint {string}")
     public void i_send_a_post_request_to_endpoint(String endpoint) {
-        String baseUrl = ConfigManager.get("base.url");
         response = apiClient
-                .setBaseUri(baseUrl)
+                .setBaseUri(ConfigManager.get("base.url"))
                 .setBody(jsonBody)
                 .post(endpoint);
+
+        // ✅ Store response in ScenarioContext for other steps to use
+        Hooks.getScenarioContext().set("loginResponse", response);
     }
 
     @Then("I should receive a {int} status code")
     public void i_should_receive_status_code(Integer statusCode) {
-        response.then().statusCode(statusCode);
+        // ✅ Retrieve response from context
+        Response savedResponse = Hooks.getScenarioContext().get("loginResponse", Response.class);
+        savedResponse.then().statusCode(statusCode);
     }
 
     @Then("I should get a token in the response")
     public void i_should_get_a_token_in_response() {
-        response.then().body("token", notNullValue());
-        authToken = response.jsonPath().getString("token");
-        System.out.println("✅ Token stored: " + authToken);
+        Response savedResponse = Hooks.getScenarioContext().get("loginResponse", Response.class);
+        savedResponse.then().body("token", notNullValue());
+        String token = savedResponse.jsonPath().getString("token");
+
+        // ✅ Store token in context for other API calls
+        Hooks.getScenarioContext().set("authToken", token);
+        System.out.println("✅ Token stored in ScenarioContext: " + token);
     }
 
     @Then("I should see an error message in the response")
     public void i_should_see_error_message_in_the_response() {
-        response.then().body("message", equalTo("Incorrect email or password."));
-        System.out.println("❌ Login failed as expected: " + response.jsonPath().getString("message"));
+        Response savedResponse = Hooks.getScenarioContext().get("loginResponse", Response.class);
+        savedResponse.then().body("message", equalTo("Incorrect email or password."));
+        System.out.println("❌ Login failed as expected: " + savedResponse.jsonPath().getString("message"));
     }
 }
