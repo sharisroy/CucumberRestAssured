@@ -6,11 +6,13 @@ import io.restassured.specification.RequestSpecification;
 
 public class ApiClient {
 
-    private RequestSpecification request;
+    private final RequestSpecification request;
 
     public ApiClient() {
+        // ✅ Set up default request with logging and JSON content type
         request = RestAssured.given()
-                .header("Content-Type", "application/json");
+                .log().all()   // ✅ Log request details automatically
+                .header("Content-Type", "application/json");  // ✅ Always JSON
     }
 
     public ApiClient setBaseUri(String baseUri) {
@@ -29,18 +31,26 @@ public class ApiClient {
     }
 
     public Response post(String endpoint) {
-        return request.when().post(endpoint);  // ✅ Correct Response type
+        Response response = request.when().post(endpoint);
+        response.then().log().all(); // ✅ Log the response too
+        return response;
     }
 
     public Response get(String endpoint) {
-        return request.when().get(endpoint);
+        Response response = request.when().get(endpoint);
+        response.then().log().all();
+        return response;
     }
 
     public Response put(String endpoint) {
-        return request.when().put(endpoint);
+        Response response = request.when().put(endpoint);
+        response.then().log().all();
+        return response;
     }
 
     public Response delete(String endpoint) {
-        return request.when().delete(endpoint);
+        Response response = request.when().delete(endpoint);
+        response.then().log().all();
+        return response;
     }
 }
