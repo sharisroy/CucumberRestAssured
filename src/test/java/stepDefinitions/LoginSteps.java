@@ -57,10 +57,14 @@ public class LoginSteps {
         Response savedResponse = Hooks.getScenarioContext().get("loginResponse", Response.class);
         savedResponse.then().body("token", notNullValue());
         String token = savedResponse.jsonPath().getString("token");
+        String userId = savedResponse.jsonPath().getString("userId");
 
         // ✅ Store token in context for other API calls
         Hooks.getScenarioContext().set("authToken", token);
+        Hooks.getScenarioContext().set("userId", userId);
         System.out.println("✅ Token stored in ScenarioContext: " + token);
+        System.out.println("✅ UserID stored in ScenarioContext: " + userId);
+
     }
 
     @Then("I should see an error message in the response")

@@ -48,7 +48,18 @@ public class GetProductSteps {
         int productCount = response.jsonPath().getInt("count");
         System.out.println("✅ Total Products: " + productCount);
 
-        // ✅ Optional: Store product count for next steps
+        // ✅ Extract and save the first product ID for Add to Cart step
+        String firstProductId = response.jsonPath().getString("data[0]._id");
+        Hooks.getScenarioContext().set("firstProductId", firstProductId);
+        System.out.println("✅ First Product ID saved for Add to Cart: " + firstProductId);
+
+        // (Optional) print all products for debugging
+        for (int i = 0; i < productCount; i++) {
+            String id = response.jsonPath().getString("data[" + i + "]._id");
+            String name = response.jsonPath().getString("data[" + i + "].productName");
+            System.out.println("   ➜ " + name + " (ID: " + id + ")");
+        }
+
         Hooks.getScenarioContext().set("productCount", productCount);
     }
 }

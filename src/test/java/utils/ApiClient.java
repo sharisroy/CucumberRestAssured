@@ -9,10 +9,9 @@ public class ApiClient {
     private final RequestSpecification request;
 
     public ApiClient() {
-        // ✅ Set up default request with logging and JSON content type
         request = RestAssured.given()
-                .log().all()   // ✅ Log request details automatically
-                .header("Content-Type", "application/json");  // ✅ Always JSON
+//                .log().all()
+                .header("Content-Type", "application/json");
     }
 
     public ApiClient setBaseUri(String baseUri) {
@@ -20,7 +19,7 @@ public class ApiClient {
         return this;
     }
 
-    public ApiClient setBody(String body) {
+    public ApiClient setBody(Object body) {
         request.body(body);
         return this;
     }
@@ -32,25 +31,33 @@ public class ApiClient {
 
     public Response post(String endpoint) {
         Response response = request.when().post(endpoint);
-        response.then().log().all(); // ✅ Log the response too
+        response.then()
+//                .log().all()
+        ;
         return response;
     }
 
     public Response get(String endpoint) {
         Response response = request.when().get(endpoint);
-        response.then().log().all();
+        response.then()
+//                .log().all()
+        ;
         return response;
     }
 
     public Response put(String endpoint) {
         Response response = request.when().put(endpoint);
-        response.then().log().all();
+        response.then()
+//                .log().all()
+        ;
         return response;
     }
 
     public Response delete(String endpoint) {
         Response response = request.when().delete(endpoint);
-        response.then().log().all();
+        response.then()
+//                .log().all()
+        ;
         return response;
     }
 }

@@ -10,6 +10,7 @@ import utils.ScenarioContext;
 
 public class Hooks {
 
+    // ThreadLocal ensures parallel scenarios don’t mix data
     private static final ThreadLocal<ScenarioContext> scenarioContextThreadLocal = new ThreadLocal<>();
 
     @Before
@@ -17,13 +18,13 @@ public class Hooks {
         System.out.println("🔧 Starting scenario: " + scenario.getName());
         scenarioContextThreadLocal.set(new ScenarioContext());
 
-        // ✅ Skip login for scenarios tagged with @login
+        // ✅ Skip auto-login for scenarios tagged with @login
         if (scenario.getSourceTagNames().contains("@login")) {
             System.out.println("⏭ Skipping auto-login for scenario tagged @login");
             return;
         }
 
-        // ✅ Login once and store token for other APIs
+        // ✅ Perform login for all other scenarios
         ApiClient apiClient = new ApiClient();
         Response loginResponse = apiClient
                 .setBaseUri(ConfigManager.get("base.url"))
@@ -31,19 +32,34 @@ public class Hooks {
                         "\"userPassword\": \"" + ConfigManager.get("login.password") + "\" }")
                 .post("auth/login");
 
+        // ✅ Verify login was successful
         loginResponse.then().statusCode(200);
-
-        // ✅ store token for use in GetProductSteps
+        // ✅ Extract token & userId
         String token = loginResponse.jsonPath().getString("token");
-        getScenarioContext().set("authToken", token);
+        String userId = loginResponse.jsonPath().getString("userId");
 
-        System.out.println("✅ Token stored in ScenarioContext: " + token);
+        // ✅ Safety check to avoid null issues
+        if (token == null) {
+            System.out.println("❌ ERROR: token is NULL in login response!");
+        } else {
+            System.out.println("✅ Token stored in ScenarioContext: " + token);
+        }
+
+        if (userId == null) {
+            System.out.println("❌ ERROR: userId is NULL in login response!");
+        } else {
+            System.out.println("✅ UserId stored in ScenarioContext: " + userId);
+        }
+
+        // ✅ Store in ScenarioContext for later use
+        getScenarioContext().set("authToken", token);
+        getScenarioContext().set("userId", userId);
     }
 
     @After
     public void teardown() {
         System.out.println("🧹 Cleaning up after scenario...");
-        scenarioContextThreadLocal.remove();
+        scenarioContextThreadLocal.remove(); // ✅ Avoids memory leaks in parallel runs
     }
 
     public static ScenarioContext getScenarioContext() {
