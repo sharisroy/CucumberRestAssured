@@ -1,5 +1,5 @@
 Feature: Get Product List API
-
+  @smoke
   Scenario: Retrieve all orders successfully
     When I send a GET request to get product "order/get-orders-for-customer/"
     Then the order API should return a 200 status code

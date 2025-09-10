@@ -1,5 +1,6 @@
 Feature: POST API Tests
 
+  @smoke
   Scenario: Login API Test with Valid Credentials
     Given I have a JSON payload from "loginPayload.json"
     When I send a POST request to endpoint "auth/login"

@@ -1,5 +1,5 @@
 Feature: Get Product List API
-
+@smoke
   Scenario: Retrieve all products successfully
     When I send a POST request to "product/get-all-products"
     Then the product API should return a 200 status code
