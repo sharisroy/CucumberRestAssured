@@ -4,17 +4,22 @@ It follows BDD practices to ensure test scenarios are readable, maintainable, an
 
 🔗 Repository: [CucumberRestAssured](https://github.com/sharisroy/CucumberRestAssured)
 # Clone the Repository
-```
+```angular2html
 git clone https://github.com/sharisroy/CucumberRestAssured.git
 cd CucumberRestAssured
 ```
+
+
 # Run with Maven
 ```angular2html
-1. mvn clean install
-2. mvn test
-3. mvn test -Dcucumber.filter.tags="@smoke"
-4. mvn clear test 
+
+mvn clean install               # Install dependencies and build project
+mvn test                        # Run all tests
+mvn test -Dcucumber.filter.tags="@smoke"  # Run only tests with @smoke tag
+mvn clean test                  # Clean and run all tests
+
 ```
+
 # Allure report
 ```angular2html
    mvn allure:serve
