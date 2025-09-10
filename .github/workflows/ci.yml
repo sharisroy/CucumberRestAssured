@@ -24,11 +24,8 @@ jobs:
       - name: Build and Run Tests
         run: mvn -B clean test
 
-      - name: Generate Allure Report
-        run: |
-          REPORT_NAME="Allure-Report-$(date +'%Y-%m-%d_%H-%M-%S')"
-          mvn allure:report -Dallure.report.directory=target/$REPORT_NAME
-      
+      - name: Generate API Testing Report
+        run: mvn allure:report
 
       - name: Upload Test Reports
         uses: actions/upload-artifact@v4
