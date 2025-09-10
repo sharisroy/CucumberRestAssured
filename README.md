@@ -1,74 +1,35 @@
 🚀 CucumberRestAssured
 A structured API test automation framework built with Cucumber, Rest Assured, JUnit, and Java.
-It follows BDD practices to ensure test scenarios are readable, maintainable, and reusable, while supporting JSON-based request payloads and modular Java utilities for API interactions.
-
+It follows BDD practices to ensure test scenarios are readable, maintainable, and reusable, while supporting JSON-based request payloads, modular Java utilities for API interactions, Dockerized execution, and rich Allure reporting for better test visibility
 
 🔗 Repository: [CucumberRestAssured](https://github.com/sharisroy/CucumberRestAssured)
-
-
-
-📁 Project Structure
-
-CucumberRestAssured
-│── pom.xml                         # Maven project object model file
-│── .gitignore                      # Specifies intentionally untracked files to ignore
-│── Dockerfile                      # Defines the Docker image for the project
-│── .dockerignore                   # Excludes specified files from the Docker image
-└── src
-├── main
-│   └── java
-│       └── com.api.automation
-│           ├── Main.java               # (Optional) Entry point for standalone test execution
-│           └── utils
-│                ├── JsonUtils.java     # Utility class to read JSON files from testdata/
-│                └── ApiClient.java     # Optional reusable methods for API requests
-└── test
-├── java
-│   ├── runners
-│   │     └── TestRunner.java       # Cucumber JUnit runner class
-│   ├── stepDefinitions
-│   │     ├── PostSteps.java        # Step definitions for POST API testing
-│   │     └── GetSteps.java         # Step definitions for GET API testing (future)
-│   └── hooks
-│         └── Hooks.java            # Optional hooks for setup/teardown
-└── resources
-├── features
-│    ├── post.feature           # Feature file for POST scenarios
-│    └── get.feature            # Feature file for GET scenarios (future)
-└── testdata
-├── loginPayload.json      # Sample request body for login API
-└── anotherRequest.json    # Additional test data for other APIs
-
-
-
-
-⚙️ Technologies Used
-Java 11+
-
-Maven
-
-Cucumber JVM
-
-Rest Assured
-
-JUnit
-
-JSON (for payloads)
-
-🧪 How to Run the Tests
-✅ Prerequisites
-Java SDK installed
-
-Maven installed
-
-IDE like IntelliJ IDEA or Eclipse
-
-🔧 Run with Maven
+# Clone the Repository
+```
+git clone https://github.com/sharisroy/CucumberRestAssured.git
+cd CucumberRestAssured
+```
+# Run with Maven
 ```angular2html
 1. mvn clean install
 2. mvn test
 3. mvn test -Dcucumber.filter.tags="@smoke"
+4. mvn clear test 
 ```
+# Allure report
+```angular2html
+   mvn allure:serve
+```
+
+# Run with Docker
+```
+Pull the image:
+     --  docker pull <your_docker_hub_username>/test-maven:1.0
+Run the image:
+     --  docker run --rm <your_docker_hub_username>/test-maven:1.0
+Save Reports (if configured):
+     --  docker run --rm -v ${PWD}/reports:/app/target <your_docker_hub_username>/test-maven:1.0
+```
+
 # Dockerization
 1. Install Docker
       ```

@@ -1,10 +1,12 @@
 package stepDefinitions;
 
 import hooks.Hooks;
+import io.cucumber.java.bs.A;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.restassured.response.Response;
+import utils.AllureReport;
 import utils.ApiClient;
 import utils.ConfigManager;
 import utils.JsonUtils;
@@ -19,6 +21,7 @@ public class AddToCardSteps {
         String filePath = "src/test/resources/testdata/" + fileName;
         jsonBody = JsonUtils.readJsonFromFile(filePath);
         System.out.println("✅ Loaded payload from: " + filePath);
+        AllureReport.attachPayload(jsonBody);
     }
 
     // ✅ renamed step to make it unique
@@ -37,6 +40,7 @@ public class AddToCardSteps {
 
         System.out.println("📦 Add to Cart Response:");
         System.out.println(response.prettyPrint());
+        AllureReport.attachResponse("Add to Cart Response", response);
     }
 
     @Then("I should receive a {int} status")
@@ -45,5 +49,6 @@ public class AddToCardSteps {
         Response savedResponse = Hooks.getScenarioContext().get("addToCartResponse", Response.class);
         savedResponse.then().statusCode(statusCode);
         System.out.println("✅ Verified Add-to-Cart API returned status: " + statusCode);
+        AllureReport.attachStatusCode(statusCode);
     }
 }

@@ -4,6 +4,7 @@ import hooks.Hooks;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
+import utils.AllureReport;
 import utils.ApiClient;
 import utils.ConfigManager;
 
@@ -33,6 +34,7 @@ public class GetOrderSteps {
 
        // ✅ Store response in ScenarioContext for other steps if needed later
        Hooks.getScenarioContext().set("getProductResponse", response);
+       AllureReport.attachResponse(response);
    }
    @Then("the order API should return a {int} status code")
     public void the_order_API_should_return_aStatusCode(int statusCode) {

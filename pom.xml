@@ -7,32 +7,44 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <!-- Set Java version -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <cucumber.version>7.18.0</cucumber.version>
+        <allure.version>2.25.0</allure.version>
+        <restassured.version>5.5.0</restassured.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <!-- ✅ Force cucumber-messages version to avoid conflicts -->
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>messages</artifactId>
+                <version>23.0.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-        <!-- ✅ Override vulnerable commons-codec 1.11 -->
+        <!-- ✅ Secure Versions -->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.17.1</version>
         </dependency>
 
-        <!-- ✅ Override vulnerable commons-lang3 3.11 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.18.0</version> <!-- Patched version -->
+            <version>3.18.0</version>
         </dependency>
 
         <!-- ✅ Rest Assured -->
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>5.5.0</version>
+            <version>${restassured.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -40,12 +52,12 @@
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
-            <version>7.18.0</version>
+            <version>${cucumber.version}</version>
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-junit</artifactId>
-            <version>7.18.0</version>
+            <version>${cucumber.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -56,6 +68,13 @@
             <version>20240303</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.17.2</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- ✅ JUnit -->
         <dependency>
             <groupId>junit</groupId>
@@ -63,18 +82,24 @@
             <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- ✅ Allure Reporting -->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.17.2</version> <!-- or latest stable -->
-            <scope>test</scope>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-cucumber7-jvm</artifactId>
+            <version>${allure.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit4</artifactId>
+            <version>${allure.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- ✅ Compiler Plugin -->
+            <!-- ✅ Compiler -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -85,12 +110,25 @@
                 </configuration>
             </plugin>
 
-            <!-- ✅ Surefire Plugin (Runs Cucumber + JUnit tests) -->
+            <!-- ✅ Surefire for Cucumber + Allure -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <allure.results.directory>target/allure-results</allure.results.directory>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
+            <!-- ✅ Allure Maven plugin (required for mvn allure:serve) -->
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.11.2</version>
             </plugin>
         </plugins>
     </build>
+
 </project>

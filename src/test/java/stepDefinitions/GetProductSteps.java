@@ -4,6 +4,7 @@ import hooks.Hooks;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.restassured.response.Response;
+import utils.AllureReport;
 import utils.ApiClient;
 import utils.ConfigManager;
 
@@ -32,12 +33,14 @@ public class GetProductSteps {
 
         // ✅ Store response in ScenarioContext for other steps if needed later
         Hooks.getScenarioContext().set("getProductResponse", response);
+        AllureReport.attachResponse(response);
     }
 
     @Then("the product API should return a {int} status code")
     public void the_product_api_should_return_a_status_code(Integer expectedStatus) {
         response.then().statusCode(expectedStatus);
         System.out.println("✅ Verified status code: " + expectedStatus);
+        AllureReport.attachStatusCode(expectedStatus);
     }
 
     @Then("the response should contain a product list")
@@ -52,6 +55,7 @@ public class GetProductSteps {
         String firstProductId = response.jsonPath().getString("data[0]._id");
         Hooks.getScenarioContext().set("firstProductId", firstProductId);
         System.out.println("✅ First Product ID saved for Add to Cart: " + firstProductId);
+        AllureReport.attachText("First Product ID saved for Add to Cart: ", firstProductId);
 
         // (Optional) print all products for debugging
         for (int i = 0; i < productCount; i++) {
@@ -61,5 +65,6 @@ public class GetProductSteps {
         }
 
         Hooks.getScenarioContext().set("productCount", productCount);
+        AllureReport.attachText("Product Count : ", String.valueOf(productCount));
     }
 }

@@ -3,8 +3,10 @@ package stepDefinitions;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
+import io.qameta.allure.Allure;
 import io.restassured.response.Response;
 import org.json.JSONObject;
+import utils.AllureReport;
 import utils.ApiClient;
 import utils.ConfigManager;
 import utils.JsonUtils;
@@ -32,6 +34,7 @@ public class LoginSteps {
         jsonObject.put("userPassword", password);
         jsonBody = jsonObject.toString();
         System.out.println("🔄 Updated payload: " + jsonBody);
+        AllureReport.attachPayload(jsonBody);
     }
 
     @When("I send a POST request to endpoint {string}")
@@ -43,6 +46,7 @@ public class LoginSteps {
 
         // ✅ Store response in ScenarioContext for other steps to use
         Hooks.getScenarioContext().set("loginResponse", response);
+        AllureReport.attachResponse("Login response", response);
     }
 
     @Then("I should receive a {int} status code")
@@ -64,6 +68,8 @@ public class LoginSteps {
         Hooks.getScenarioContext().set("userId", userId);
         System.out.println("✅ Token stored in ScenarioContext: " + token);
         System.out.println("✅ UserID stored in ScenarioContext: " + userId);
+        AllureReport.attachText("Token stored in ScenarioContext : ", token);
+        AllureReport.attachText("UserID stored in ScenarioContext : ", userId);
 
     }
 
@@ -72,5 +78,6 @@ public class LoginSteps {
         Response savedResponse = Hooks.getScenarioContext().get("loginResponse", Response.class);
         savedResponse.then().body("message", equalTo("Incorrect email or password."));
         System.out.println("❌ Login failed as expected: " + savedResponse.jsonPath().getString("message"));
+        AllureReport.attachText("Login failed as expected: ", savedResponse.jsonPath().getString("message"));
     }
 }

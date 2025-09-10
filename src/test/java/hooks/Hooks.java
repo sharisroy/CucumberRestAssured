@@ -3,6 +3,7 @@ package hooks;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
+import io.qameta.allure.Allure;
 import io.restassured.response.Response;
 import utils.ApiClient;
 import utils.ConfigManager;
@@ -61,6 +62,13 @@ public class Hooks {
         System.out.println("🧹 Cleaning up after scenario...");
         scenarioContextThreadLocal.remove(); // ✅ Avoids memory leaks in parallel runs
     }
+
+    public static void attachResponse(Response response, String name) {
+        if (response != null) {
+            Allure.addAttachment(name, response.asPrettyString());
+        }
+    }
+
 
     public static ScenarioContext getScenarioContext() {
         return scenarioContextThreadLocal.get();
