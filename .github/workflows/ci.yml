@@ -25,13 +25,16 @@ jobs:
         run: mvn -B clean test
 
       - name: Generate Allure Report
-        run: mvn allure:report
+        run: |
+          REPORT_NAME="Allure-Report-$(date +'%Y-%m-%d_%H-%M-%S')"
+          mvn allure:report -Dallure.report.directory=target/$REPORT_NAME
+      
 
       - name: Upload Test Reports
         uses: actions/upload-artifact@v4
         with:
           name: cucumber-reports
-          path: target/
+          path: target/$REPORT_NAME
 
   deploy-report:
     runs-on: ubuntu-latest
